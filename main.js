@@ -28,15 +28,32 @@ function create_file(text) {
   });
 }
 
+bot.onText(/^\/ban/, function(message, match) {
+	bot.getChatMember(message.chat.id, message.from.id).then(function(data) {
+		if ((data.status == "creator") || (data.status == "administrator")){
+			bot.sendMessage(message.chat.id, "I'm admin!");
+		}else{
+			bot.sendMessage(message.chat.id, "I'm not admin");
+		}
+	});
+});
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   const M_ID = msg.message_id;
-  const NumberOfLines = msg.text.split(/\r\n|\r|\n/).length;
-  if (NumberOfLines > 50)
-    bot.deleteMessage(chatId, M_ID) && create_file(msg.text);
-
-  if (telegram_links(msg.text)) bot.deleteMessage(chatId, M_ID);
-  if (whatapp_links(msg.text)) bot.deleteMessage(chatId, M_ID);
+  
+  
+  bot.getChatMember(msg.chat.id, msg.from.id).then(function(data) {
+    if ((data.status == "creator") || (data.status == "administrator")){
+        return 
+    }else{
+        const NumberOfLines = msg.text.split(/\r\n|\r|\n/).length;
+        if (NumberOfLines > 50) bot.deleteMessage(chatId, M_ID) && create_file(msg.text);
+        if (telegram_links(msg.text)) bot.deleteMessage(chatId, M_ID);
+        if (whatapp_links(msg.text)) bot.deleteMessage(chatId, M_ID);
+    }
+});
+    
+  
 });
 
 /*
