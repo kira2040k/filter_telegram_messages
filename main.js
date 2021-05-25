@@ -28,15 +28,7 @@ function create_file(text) {
   });
 }
 
-bot.onText(/^\/ban/, function(message, match) {
-	bot.getChatMember(message.chat.id, message.from.id).then(function(data) {
-		if ((data.status == "creator") || (data.status == "administrator")){
-			bot.sendMessage(message.chat.id, "I'm admin!");
-		}else{
-			bot.sendMessage(message.chat.id, "I'm not admin");
-		}
-	});
-});
+
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   const M_ID = msg.message_id;
