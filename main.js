@@ -48,6 +48,10 @@ bot.on("message", (msg) => {
   
 });
 
+bot.onText(/ping kira/, (msg, match) => {
+    bot.sendMessage(msg.chat.id,"pong")
+
+});
 /*
 bot.onText(/ip (.+)/, (msg, match) => {
     const IP = match[1]
