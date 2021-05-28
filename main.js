@@ -42,14 +42,27 @@ function count_lines(text){
 }
 }
 
-function insert_black_list(hash){
-  fs.appendFile('blacklist.txt', `${hash}\n`, function (err) {
+function insert_black_list(file,hash){
+  fs.appendFile(file, `${hash}\n`, function (err) {
     
     
   })
 }
 
-
+const search_account = async (text)=>{
+  return new Promise((resolve, reject) => {
+  const data = fs.readFileSync('./account_blacklist.txt', 'UTF-8');
+  const lines = data.split(/\r?\n/);
+  
+  lines.forEach((line) => {
+    
+    line = "@" + line ;
+    if (line.length <= 1) return;  
+    if(text.includes(line)) return result = resolve(true);  
+})
+return false
+})
+}
 
 const download_images = async (msg,fileId) => {
 
@@ -70,7 +83,7 @@ const download_images = async (msg,fileId) => {
     await download(downloadURL, path.join(__dirname, `/images/${fileId}`), async function (){
       
       hashFile(path.join(__dirname, `/images/${fileId}`), function (err, hash) {
-        insert_black_list(hash)
+        insert_black_list('blacklist.txt',hash)
     })
     } 
     
@@ -83,7 +96,7 @@ const download_images = async (msg,fileId) => {
   }
 }
 
-const  search_in_file = async (hash)=>{
+const  search_in_file = async (file,hash)=>{
   return new Promise((resolve, reject) => {
   const data = fs.readFileSync('./blacklist.txt', 'UTF-8');
   const lines = data.split(/\r?\n/);
@@ -115,7 +128,7 @@ const check_image = async (msg) => {
       hashFile(path.join(__dirname, `./test_images/${fileId}`), function (err, hash) {
         const chatId = msg.chat.id;
         const M_ID = msg.message_id;
-        search_in_file(hash).then(result =>{
+        search_in_file('blacklist.txt',hash).then(result =>{
           if(result) bot.deleteMessage(chatId, M_ID);
         })
         
@@ -137,12 +150,13 @@ bot.on("message", (msg) => {
   
   bot.getChatMember(msg.chat.id, msg.from.id).then(function(data) {
     if ((data.status == "creator") || (data.status == "administrator")){
-        return 
+       return 
     }else{
       const NumberOfLines = count_lines(msg.text)
         if (NumberOfLines > 50) bot.deleteMessage(chatId, M_ID) && create_file(msg.text);
         if (telegram_links(msg.text)) bot.deleteMessage(chatId, M_ID);
         if (whatapp_links(msg.text)) bot.deleteMessage(chatId, M_ID);
+        if(search_account(msg.text).then(result =>{if(result) bot.deleteMessage(chatId,M_ID)}));
     }
 });
     
@@ -176,10 +190,41 @@ bot.on('message', async(msg) => {
 
 });
 
-bot.onText(/\/addk/, (msg, match) => {
+bot.onText(/\/(addi|ADDI)/, (msg, match) => {
   const chatId = msg.chat.id;
   const resp = match[1]; 
   const fileId = msg.reply_to_message.photo[0].file_id
   download_images(msg,fileId)
   bot.sendMessage(chatId,"added successfully")
+});
+
+bot.onText(/\/(addc|ADDC) (.+)/, (msg, match) => {
+  const chatId = msg.chat.id;
+
+  let account = match[2];
+
+  
+  bot.getChatMember(msg.chat.id, msg.from.id).then(function(data) {
+    if ((data.status == "creator") || (data.status == "administrator")){
+      account = account.toString().replace('@','')
+      bot.sendMessage(chatId,`${account} was added to blacklist`) 
+      
+      insert_black_list('account_blacklist.txt',account)
+    }
+});
+});
+
+
+bot.onText(/\/(helpk|HELPK)/, (msg, match) => {
+  const chatId = msg.chat.id;
+  let fet = `المميزرات:\n`
+  fet+= ` -حذف الرسائل التي تحتوي على روابط محموجوعات واتس اب او تيليقرام\n` 
+  fet+= `-حذف الرسائل التي تحتوي على اكثر من 50 سطر\n`
+  fet+=`-كل المميزات  لا تعمل مع المشرفين\n`
+  fet+= `-حذف الصور التي في القائمة السوداء\n`
+  let work = `طريقة الاستعمال:\n`
+  let add_photo = `/addi لإضافة صورة الى القائمة السوداء \n`
+  let add_account = `/addc اضافه حساب الى القائمة السدواء بحيث اي رسالة تحتوي على هذا الحساب يتم حذفها\n`
+  let last = fet + work + add_photo + add_account
+  bot.sendMessage(chatId,last)
 });
