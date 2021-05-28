@@ -153,10 +153,10 @@ bot.on("message", (msg) => {
        return 
     }else{
       const NumberOfLines = count_lines(msg.text)
-        if (NumberOfLines > 50) bot.deleteMessage(chatId, M_ID) && create_file(msg.text);
-        if (telegram_links(msg.text)) bot.deleteMessage(chatId, M_ID);
-        if (whatapp_links(msg.text)) bot.deleteMessage(chatId, M_ID);
-        if(search_account(msg.text).then(result =>{if(result) bot.deleteMessage(chatId,M_ID)}));
+        if (NumberOfLines > 50) bot.deleteMessage(chatId, M_ID) && create_file(msg.text) && bot.sendMessage(chatId,"message was deleted");
+        if (telegram_links(msg.text)) bot.deleteMessage(chatId, M_ID) && bot.sendMessage(chatId,"message was deleted");
+        if (whatapp_links(msg.text)) bot.deleteMessage(chatId, M_ID) && bot.sendMessage(chatId,"message was deleted");
+        if(search_account(msg.text).then(result =>{if(result) bot.deleteMessage(chatId,M_ID) && bot.sendMessage(chatId,"message was deleted")}));
     }
 });
     
