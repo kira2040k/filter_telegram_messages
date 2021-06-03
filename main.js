@@ -11,13 +11,21 @@ const hashFile = require('hash-file-cli')
 const lineByLine = require('n-readlines');
 
 function telegram_links(text) {
-  let re = /t.me\//;
+  let re = /t.me\//i;
   return re.test(text);
 }
 function whatapp_links(text) {
-  let re = /Wa.me\/201270189101/;
-  return re.test(text);
+  let re = /Wa.me\//i;
+  if(re.test(text)) return re.test(text);
+  re = /api.whatsapp.com/i
+  if(re.test(text)) return re.test(text);
+  
 }
+
+function phone_numbers(text){
+  let re = /05[0-9]{8}/;
+  return re.test(text);
+  }
 function create_new_line() {
   let data =
     "----------------------------New Message------------------------------------------";
@@ -143,6 +151,8 @@ const check_image = async (msg) => {
     
   }
 }
+
+//send message
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   const M_ID = msg.message_id;
@@ -156,6 +166,7 @@ bot.on("message", (msg) => {
         if (NumberOfLines > 50) bot.deleteMessage(chatId, M_ID) && create_file(msg.text) && bot.sendMessage(chatId,"message was deleted");
         if (telegram_links(msg.text)) bot.deleteMessage(chatId, M_ID) && bot.sendMessage(chatId,"message was deleted");
         if (whatapp_links(msg.text)) bot.deleteMessage(chatId, M_ID) && bot.sendMessage(chatId,"message was deleted");
+        if (phone_numbers(msg.text)) bot.deleteMessage(chatId, M_ID) && bot.sendMessage(chatId,"message was deleted");
         if(search_account(msg.text).then(result =>{if(result) bot.deleteMessage(chatId,M_ID) && bot.sendMessage(chatId,"message was deleted")}));
     }
 });
@@ -165,7 +176,7 @@ bot.on("message", (msg) => {
 
 bot.onText(/ping kira/, (msg, match) => {
     bot.sendMessage(msg.chat.id,"pong")
-
+    console.log(msg.chat.id)
 });
 
 
@@ -181,7 +192,7 @@ bot.on('message', async(msg) => {
     
     bot.getChatMember(msg.chat.id, msg.from.id).then(function(data) {
       if ((data.status == "creator") || (data.status == "administrator")){
-        check_image(msg)
+        return 
       }else{
         check_image(msg)
         
@@ -191,11 +202,17 @@ bot.on('message', async(msg) => {
 });
 
 bot.onText(/\/(addi|ADDI)/, (msg, match) => {
+  bot.getChatMember(msg.chat.id, msg.from.id).then(function(data) {
+    if ((data.status == "creator") || (data.status == "administrator")){
+      
+
   const chatId = msg.chat.id;
   const resp = match[1]; 
   const fileId = msg.reply_to_message.photo[0].file_id
   download_images(msg,fileId)
   bot.sendMessage(chatId,"added successfully")
+}
+});
 });
 
 bot.onText(/\/(addc|ADDC) (.+)/, (msg, match) => {
@@ -227,4 +244,60 @@ bot.onText(/\/(helpk|HELPK)/, (msg, match) => {
   let add_account = `/addc اضافه حساب الى القائمة السدواء بحيث اي رسالة تحتوي على هذا الحساب يتم حذفها\n`
   let last = fet + work + add_photo + add_account
   bot.sendMessage(chatId,last)
+  });
+
+bot.onText(/kira start/, (msg, match) => {
+  const chatId = msg.chat.id;
+  let message = `
+  -اول شي اذا جيت تبدأ بمجال اكتشاف الثغرات يفضل يكون عندك انقليزي اذا ماعندك ماعندك مشكله بس ممكن تواجهه مشاكل 
+
+-في البدايه حاول تتعلم المواقع كيف تشتغل كيف الريقويست يصير و كيف تقدر تحدد ان اللي قدامك ثغرة او لا عدد الثغرات كثير جدا ماتقدر تحصيها كلها بس تقدر تعرف الاشهر 
+
+
+-تعلم لغة برمجة الشبكات قواعد البيانات هذي كلها راح تفيدك بس ماهي مشروطة مقولة (المبرمج هكر و الهكر مبرمج) غير صحيحة تماما لأن بتلاقي هكرز كثير مايعرفون برمجة و لو المبرمج يعرف يخترق كان ما بيكون فيه ثغرات
+
+
+-كيفية التعلم حاول كل يوم على الاقل تتعلم شي جديد لا تدخل على اكتشاف الثغرات علطول و ماعندك فهم كامل عشان ما تضيع وقتك و ممكن معنوياتك تطيح ف انصح قبل ما تدخل تجرب على لابات
+
+1-portswigger
+
+2.vulnweb.com
+
+3.tryhackme 
+
+فيه شي حلو دايم اسويه اني اشوف تقارير غيري و تقدر تشوفها من هذا الرابط
+
+https://hackerone.com/hacktivity
+
+
+الكتب اللي انصح فيها:
+-real world bug hunter
+
+بعض قنوات اللي انصح فيها
+
+-stock
+
+-Farah Hawa
+
+-InsiderPhD
+
+-Nahamsec
+
+-Bugcrowd
+
+
+بعد ما تخلص تقدر تبدأ تجرب تكتشف ثغرات و هذي بعض المنصات
+
+-hackerone
+
+-bugcrowd
+  `
+  
+  // bugbounty -1001238149877
+
+  if(chatId == -1001238149877){
+  bot.sendMessage(chatId,message)
+  }
 });
+
+
