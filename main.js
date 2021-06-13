@@ -100,7 +100,7 @@ const download_images = async (msg,fileId) => {
 
   }
   catch(e){
-    console.log(e)
+    
   }
 }
 
@@ -176,7 +176,7 @@ bot.on("message", (msg) => {
 
 bot.onText(/ping kira/, (msg, match) => {
     bot.sendMessage(msg.chat.id,"pong")
-    console.log(msg.chat.id)
+    
 });
 
 
@@ -285,7 +285,9 @@ https://hackerone.com/hacktivity
 
 -Bugcrowd
 
+-ابراهيم الحجازي
 
+-cyber guy
 بعد ما تخلص تقدر تبدأ تجرب تكتشف ثغرات و هذي بعض المنصات
 
 -hackerone
